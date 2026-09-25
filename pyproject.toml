@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vdm"
+version = "0.2.0"
+description = "Gestionnaire de téléchargements multi-connexions façon IDM : fichiers, YouTube et sites vidéo, playlists, sous-titres, planificateur"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = ["requests>=2.31", "rich>=13", "yt-dlp[default]", "deno", "PySide6-Essentials>=6.6", "imageio-ffmpeg", "curl_cffi"]
+
+[project.scripts]
+vdm = "vdm.cli:main"
+
+[tool.setuptools]
+packages = ["vdm"]

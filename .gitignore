@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Téléchargements laissés par des essais dans le dossier du projet
+*.part
+*.vdm
+*.ytdl
+
+# Éditeurs / système
+.vscode/
+.idea/
+.claude/
+Thumbs.db
+desktop.ini

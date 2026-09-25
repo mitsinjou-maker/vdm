@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --bg:#fff; --fg:#1d2126; --muted:#6b7280; --line:#e5e7eb; --accent:#1f7ae0; --ok:#1a9e55; --err:#d93025; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1e1f22; --fg:#e8eaed; --muted:#9aa0a6; --line:#34363a; --accent:#5aa2f0; }
+  }
+  body { width: 380px; margin: 0; font: 13px system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+  header { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); }
+  h1 { font-size:14px; margin:0; }
+  #status { font-size:12px; color:var(--muted); }
+  #status.ok::before { content:"● "; color:var(--ok); }
+  #status.off::before { content:"● "; color:var(--err); }
+  section { padding:10px 12px; border-bottom:1px solid var(--line); }
+  h2 { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 6px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  button { font:inherit; border:0; border-radius:6px; padding:6px 10px; background:var(--accent); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  button.small { padding:3px 8px; }
+  select { font:inherit; padding:5px; border-radius:6px; border:1px solid var(--line); background:var(--bg); color:var(--fg); }
+  ul { list-style:none; margin:0; padding:0; max-height:220px; overflow:auto; }
+  li { display:flex; gap:8px; align-items:center; padding:5px 0; border-top:1px solid var(--line); }
+  li:first-child { border-top:0; }
+  .info { flex:1; min-width:0; }
+  .name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .meta { font-size:11px; color:var(--muted); }
+  .bar { height:4px; background:var(--line); border-radius:2px; margin-top:3px; overflow:hidden; }
+  .bar > div { height:100%; background:var(--accent); }
+  .opts { margin-top:8px; gap:14px; font-size:12px; }
+  .opts label { display:flex; align-items:center; gap:4px; cursor:pointer; }
+  .empty, .hint { color:var(--muted); font-size:12px; }
+  code { font-size:12px; }
+</style>
+</head>
+<body>
+  <header><h1>VDM</h1><span id="status">connexion…</span></header>
+
+  <section>
+    <h2>Cette page</h2>
+    <div class="row">
+      <button id="page">Télécharger la vidéo de la page</button>
+      <select id="quality" title="Qualité">
+        <option value="best">Meilleure</option>
+        <option value="1080">1080p</option>
+        <option value="720">720p</option>
+        <option value="480">480p</option>
+        <option value="audio">Audio seul</option>
+      </select>
+    </div>
+    <div class="row opts">
+      <label>Langue audio
+        <select id="lang" title="Piste audio pour les vidéos doublées (YouTube…)">
+          <option value="">d'origine</option>
+          <option value="fr">Français</option>
+          <option value="en">Anglais</option>
+          <option value="es">Espagnol</option>
+          <option value="de">Allemand</option>
+          <option value="it">Italien</option>
+          <option value="pt">Portugais</option>
+          <option value="ar">Arabe</option>
+          <option value="hi">Hindi</option>
+          <option value="ja">Japonais</option>
+          <option value="ko">Coréen</option>
+          <option value="ru">Russe</option>
+        </select>
+      </label>
+      <label>Sous-titres
+        <input type="text" id="subs" placeholder="ex. fr, en" size="8"
+               title="Langues des sous-titres, séparées par des virgules (vide = aucun)">
+      </label>
+    </div>
+    <div class="row opts">
+      <label title="Sous-titres générés ou traduits par le site"><input type="checkbox" id="subsAuto"> Sous-titres auto</label>
+      <label title="Dans la vidéo plutôt qu'en fichiers .srt"><input type="checkbox" id="subsEmbed"> Intégrés</label>
+    </div>
+    <div class="row opts">
+      <label><input type="checkbox" id="playlist"> Toute la playlist</label>
+      <label><input type="checkbox" id="scheduled"> File planifiée ⏰</label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Médias détectés</h2>
+    <ul id="media"></ul>
+  </section>
+
+  <section>
+    <h2>Téléchargements</h2>
+    <ul id="jobs"></ul>
+  </section>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
