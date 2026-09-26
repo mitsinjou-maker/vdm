@@ -45,7 +45,10 @@ def deno_location():
     found = shutil.which("deno")
     if found:
         return found
-    for folder in (Path(sys.executable).parent, Path(sys.executable).parent / "Scripts"):
+    folders = [Path(sys.executable).parent, Path(sys.executable).parent / "Scripts"]
+    if getattr(sys, "frozen", False):  # version installée : deno.exe est livré avec VDM
+        folders.insert(0, Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent)))
+    for folder in folders:
         exe = folder / ("deno.exe" if sys.platform == "win32" else "deno")
         if exe.is_file():
             return str(exe)

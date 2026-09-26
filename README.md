@@ -23,6 +23,16 @@ Un gestionnaire de téléchargements inspiré d'IDM, en ligne de commande **et**
 
 ## Installation
 
+### Avec l'installateur Windows (le plus simple)
+
+Téléchargez `VDM-Setup-<version>.exe` depuis la page [Releases](https://github.com/mitsinjou-maker/vdm/releases) et lancez-le : pas besoin de Python, tout est inclus (ffmpeg, deno…). Installation sans droits administrateur, avec raccourci dans le menu Démarrer, et en option : icône sur le Bureau, lancement au démarrage de Windows, commande `vdm` dans le terminal. Désinstallation depuis *Paramètres › Applications* (vos réglages et votre file d'attente sont conservés).
+
+L'installateur n'étant pas signé numériquement, Windows SmartScreen peut afficher « Windows a protégé votre ordinateur » : cliquez sur **Informations complémentaires › Exécuter quand même**.
+
+Pour construire l'installateur vous-même : `pip install pyinstaller`, `winget install JRSoftware.InnoSetup`, puis `python tools/build_installer.py` (résultat dans `dist/`).
+
+### Depuis le code source
+
 Prérequis : [Python 3.10 ou plus récent](https://www.python.org/downloads/) et [Git](https://git-scm.com/).
 
 ```bash

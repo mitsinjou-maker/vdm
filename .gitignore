@@ -18,3 +18,6 @@ venv/
 .claude/
 Thumbs.db
 desktop.ini
+
+# Construction de l'installateur (tools/build_installer.py)
+build_log.txt

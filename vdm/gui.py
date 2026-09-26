@@ -1024,7 +1024,7 @@ class MainWindow(QMainWindow):
         QApplication.quit()
 
 
-def run(port):
+def run(port, hidden=False):
     from .cli import api  # client HTTP minimal
 
     app = QApplication.instance() or QApplication(sys.argv)
@@ -1047,5 +1047,6 @@ def run(port):
         return 1
     manager.start()
     win = MainWindow(manager, httpd, port)
-    win.show()
+    if not (hidden and win.tray):  # --tray : seulement l'icône de la zone de notification
+        win.show()
     return app.exec()
