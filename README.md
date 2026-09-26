@@ -27,6 +27,8 @@ Un gestionnaire de téléchargements inspiré d'IDM, en ligne de commande **et**
 
 Téléchargez `VDM-Setup-<version>.exe` depuis la page [Releases](https://github.com/mitsinjou-maker/vdm/releases) et lancez-le : pas besoin de Python, tout est inclus (ffmpeg, deno…). Installation sans droits administrateur, avec raccourci dans le menu Démarrer, et en option : icône sur le Bureau, lancement au démarrage de Windows, commande `vdm` dans le terminal. Désinstallation depuis *Paramètres › Applications* (vos réglages et votre file d'attente sont conservés).
 
+**Extension navigateur** : à la fin de l'installation, la case « Installer l'extension dans mon navigateur » ouvre la page des extensions de votre navigateur par défaut (Chrome, Edge, Brave ou Firefox), le dossier de l'extension et un mémo des 3 clics à faire. Même aide plus tard : menu Démarrer › « VDM — Installer l'extension navigateur », bouton **Extension** de l'interface, ou `vdm extension`.
+
 L'installateur n'étant pas signé numériquement, Windows SmartScreen peut afficher « Windows a protégé votre ordinateur » : cliquez sur **Informations complémentaires › Exécuter quand même**.
 
 Pour construire l'installateur vous-même : `pip install pyinstaller`, `winget install JRSoftware.InnoSetup`, puis `python tools/build_installer.py` (résultat dans `dist/`).
@@ -124,6 +126,7 @@ L'interface remplace `vdm daemon` : l'extension et les commandes `vdm add/list/p
 | `vdm schedule on --start 02:00 --stop 07:00 --days lun,mar,mer --after arret` | Active et règle le planificateur (`--stop aucune` : jusqu'à la fin de la file ; `--after rien/veille/arret`). |
 | `vdm schedule off` | Désactive le planificateur. |
 | `vdm gui` | Ouvre l'interface graphique. |
+| `vdm extension` | Aide à l'installation de l'extension navigateur (page des extensions, dossier, mémo). |
 | `vdm clean` | Retire de la liste les téléchargements terminés. |
 | `vdm limit 2M` / `vdm limit 0` | Change la limite de vitesse du daemon en cours. |
 

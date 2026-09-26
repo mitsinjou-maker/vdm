@@ -23,9 +23,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="VDM")
     parser.add_argument("--tray", action="store_true",
                         help="démarrer réduit dans la zone de notification (lancement avec Windows)")
+    parser.add_argument("--install-extension", action="store_true",
+                        help="aide à l'installation de l'extension navigateur, sans ouvrir VDM")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=argparse.SUPPRESS)
     _redirect_output()
     args = parser.parse_args(argv)
+    if args.install_extension:  # fin de l'installateur, ou raccourci du menu Démarrer
+        from .extension_helper import open_setup
+        open_setup()
+        return 0
     if sys.platform == "win32":
         import ctypes
         ctypes.windll.kernel32.CreateMutexW(None, False, MUTEX_NAME)  # libéré à la fermeture du processus

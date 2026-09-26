@@ -51,8 +51,10 @@ fr.StartupTask=Lancer VDM au démarrage de Windows (dans la zone de notification
 en.StartupTask=Start VDM with Windows (in the notification area)
 fr.PathTask=Ajouter la commande « vdm » au terminal (PATH)
 en.PathTask=Add the "vdm" command to the terminal (PATH)
-fr.ExtensionShortcut=Extension navigateur (dossier à charger dans Chrome ou Firefox)
-en.ExtensionShortcut=Browser extension (folder to load in Chrome or Firefox)
+fr.ExtensionShortcut=Installer l'extension navigateur
+en.ExtensionShortcut=Install the browser extension
+fr.ExtensionRun=Installer l'extension dans mon navigateur (ouvre la page des extensions et un mémo des 3 clics)
+en.ExtensionRun=Install the extension in my browser (opens the extensions page and a 3-step guide)
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -67,11 +69,12 @@ Source: "..\README.md"; DestDir: "{app}"
 
 [Icons]
 Name: "{autoprograms}\VDM"; Filename: "{app}\{#AppExe}"
-Name: "{autoprograms}\VDM — {cm:ExtensionShortcut}"; Filename: "{app}\extension"
+Name: "{autoprograms}\VDM — {cm:ExtensionShortcut}"; Filename: "{app}\{#AppExe}"; Parameters: "--install-extension"
 Name: "{autodesktop}\VDM"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
 Name: "{userstartup}\VDM"; Filename: "{app}\{#AppExe}"; Parameters: "--tray"; Tasks: startup
 
 [Run]
+Filename: "{app}\{#AppExe}"; Parameters: "--install-extension"; Description: "{cm:ExtensionRun}"; Flags: nowait postinstall skipifsilent
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,VDM}"; Flags: nowait postinstall skipifsilent
 
 ; Les réglages et la file d'attente (%APPDATA%\vdm) sont conservés à la désinstallation.

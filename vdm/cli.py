@@ -422,6 +422,18 @@ def cmd_langs(a, only_subs=False):
     return 0
 
 
+def cmd_extension(a):
+    from .extension_helper import extension_dir, open_setup
+    browser = open_setup()
+    console.print(f"Dossier de l'extension : {escape(str(extension_dir()))}")
+    if browser:
+        console.print(f"Page des extensions de {browser} ouverte, avec le dossier et un mémo des étapes.")
+    else:
+        console.print("Aucun navigateur compatible trouvé (Chrome, Edge, Brave ou Firefox) : "
+                      "le dossier et le mémo des étapes sont ouverts.")
+    return 0
+
+
 def cmd_gui(a):
     try:
         from .gui import run
@@ -516,6 +528,9 @@ def build_parser():
     st.add_argument("--embed", action="store_true", help="intégrer dans la vidéo (sinon fichiers .srt)")
     st.add_argument("--list", action="store_true", help="lister les sous-titres disponibles")
     st.set_defaults(func=cmd_subs, referer=None)
+
+    sub.add_parser("extension", help="aide à l'installation de l'extension navigateur").set_defaults(
+        func=cmd_extension)
 
     sub.add_parser("gui", help="ouvrir l'interface graphique (remplace le daemon)").set_defaults(func=cmd_gui)
 

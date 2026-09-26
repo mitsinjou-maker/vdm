@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vdm"
-version = "0.3.0"
+version = "0.3.1"
 description = "Gestionnaire de téléchargements multi-connexions façon IDM : fichiers, YouTube et sites vidéo, playlists, sous-titres, planificateur"
 readme = "README.md"
 license = {text = "MIT"}

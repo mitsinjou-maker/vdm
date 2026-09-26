@@ -748,6 +748,7 @@ class MainWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self._action("Planificateur", S.SP_BrowserReload, self.schedule_dialog))
         tb.addAction(self._action("Options", S.SP_FileDialogDetailedView, self.options_dialog))
+        tb.addAction(self._action("Extension", S.SP_ComputerIcon, self.install_extension))
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         tb.addWidget(spacer)
@@ -915,6 +916,13 @@ class MainWindow(QMainWindow):
         for url in urls:
             self.m.add(url, **opts)
         self.refresh()
+
+    def install_extension(self):
+        from .extension_helper import open_setup
+        try:
+            open_setup()
+        except OSError as e:
+            QMessageBox.warning(self, "Extension navigateur", str(e))
 
     def schedule_dialog(self):
         dlg = ScheduleDialog(self, self.m.config.schedule)
