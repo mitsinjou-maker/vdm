@@ -4,6 +4,9 @@
 
 Un gestionnaire de téléchargements inspiré d'IDM, en ligne de commande **et** en interface graphique :
 
+![Interface de VDM : liste des téléchargements, catégories et carte des segments](docs/screenshots/vdm-interface.png)
+
+
 - **Téléchargement multi-connexions** : un fichier est découpé en segments téléchargés en parallèle (8 connexions par défaut).
 - **Segmentation dynamique** : quand une connexion a fini son segment, elle coupe en deux le segment restant le plus long et en reprend la moitié. Aucune connexion ne reste inactive jusqu'à la fin.
 - **Reprise** après pause, Ctrl+C, coupure réseau ou redémarrage du PC (fichiers `.part` + `.vdm`).
@@ -164,6 +167,10 @@ extension Chrome ──POST /api/add──▶ vdm gui / vdm daemon (127.0.0.1:96
 - Les contenus protégés par DRM (Netflix, Disney+, Spotify…) ne sont pas téléchargeables. C'est volontaire.
 - Téléchargez uniquement des contenus que vous avez le droit de copier.
 - Pour les sites qui demandent une connexion, l'extension transmet les cookies du navigateur lorsqu'elle envoie un lien direct vers un fichier média. Ils sont stockés dans `queue.json` jusqu'à ce que le téléchargement soit retiré de la liste.
+
+## Publication de l'extension
+
+Textes des fiches boutique, justification des permissions et note pour les relecteurs : [docs/STORE_LISTING.md](docs/STORE_LISTING.md). Politique de confidentialité : [docs/PRIVACY.md](docs/PRIVACY.md). Icônes : `python tools/make_icons.py`.
 
 ## Licence
 

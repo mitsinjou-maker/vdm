@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 from . import scheduler, ytdl
-from .config import Config, category_for
+from .config import DAYS, Config, category_for
 from .engine import DownloadError, HttpDownload, Paused, make_session, probe
 from .util import STORE_PATH, RateLimiter, SpeedMeter, sanitize_filename
 
@@ -321,7 +321,9 @@ class Manager:
             until = f" jusqu'à {s.stop}" if s.stop else " jusqu'à la fin de la file"
             return f"file planifiée active{until}"
         nxt = scheduler.next_start(s)
-        return f"file planifiée : prochain départ {nxt:%a %d/%m %H:%M}" if nxt else "planificateur : aucun jour choisi"
+        if not nxt:
+            return "planificateur : aucun jour choisi"
+        return f"file planifiée : prochain départ {DAYS[nxt.weekday()]} {nxt:%d/%m %H:%M}"
 
     # --- boucle d'ordonnancement --------------------------------------------
 
