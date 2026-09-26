@@ -44,6 +44,23 @@ Les outils dont yt-dlp a besoin pour YouTube sont aussi installés automatiqueme
 2. Cliquer sur **Charger l'extension non empaquetée** et choisir le dossier `vdm/extension`.
 3. Lancer `vdm gui` (ou `vdm daemon`) : l'extension lui envoie les téléchargements.
 
+### Extension Firefox (140 ou plus récent)
+
+Le même dossier `vdm/extension` fonctionne dans Firefox.
+
+**Pour essayer** (l'extension disparaît à la fermeture de Firefox) :
+
+1. Ouvrir `about:debugging#/runtime/this-firefox`.
+2. Cliquer sur **Charger un module complémentaire temporaire…** et choisir `vdm/extension/manifest.json`.
+
+**Pour l'installer durablement**, Firefox exige une extension signée par Mozilla (gratuit, sans publication dans la boutique) :
+
+1. Créer l'archive : `python tools/pack_extension.py` (fichier `dist/vdm-extension-<version>.zip`).
+2. Sur [addons.mozilla.org › Developer Hub](https://addons.mozilla.org/developers/addon/submit/distribution), choisir **« On your own »** (non listée) et envoyer l'archive. La signature automatique prend quelques minutes.
+3. Télécharger le fichier `.xpi` signé et le glisser dans Firefox.
+
+**Important** : Firefox considère l'accès aux sites comme facultatif. Au premier clic sur l'icône VDM, un bandeau propose **Autoriser** : sans cet accès, aucune vidéo n'est détectée. (Également réglable dans `about:addons` › VDM › Permissions.)
+
 ## Utilisation
 
 ### Interface graphique

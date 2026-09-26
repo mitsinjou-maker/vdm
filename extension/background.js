@@ -54,7 +54,11 @@ chrome.webRequest.onSendHeaders.addListener(
     if (sentHeaders.size > 500) sentHeaders.delete(sentHeaders.keys().next().value); // borne mémoire
   },
   { urls: ["<all_urls>"], types: ["media", "xmlhttprequest", "other", "object"] },
-  ["requestHeaders", "extraHeaders"], // extraHeaders : nécessaire pour lire Referer et Cookie
+  // Chrome ne montre Referer et Cookie qu'avec « extraHeaders » ; Firefox les donne toujours
+  // et refuserait cette option inconnue : on ne l'ajoute que si le navigateur la connaît.
+  chrome.webRequest.OnSendHeadersOptions?.EXTRA_HEADERS
+    ? ["requestHeaders", "extraHeaders"]
+    : ["requestHeaders"],
 );
 
 for (const event of [chrome.webRequest.onCompleted, chrome.webRequest.onErrorOccurred]) {
@@ -85,7 +89,8 @@ chrome.webRequest.onHeadersReceived.addListener(
     const sent = sentHeaders.get(details.requestId) || {};
     // hôte du cadre qui a demandé la vidéo (lecteur intégré) ; affiché dans la popup
     let via = "";
-    try { via = new URL(sent.Referer || details.initiator || "").hostname; } catch {}
+    // initiator : Chrome ; documentUrl (adresse exacte du cadre) : Firefox
+    try { via = new URL(sent.Referer || details.documentUrl || details.initiator || "").hostname; } catch {}
 
     withTab(details.tabId, (items) => {
       if (items.some((i) => i.url === url)) return null;

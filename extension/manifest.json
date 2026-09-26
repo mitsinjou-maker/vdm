@@ -1,10 +1,41 @@
 {
   "manifest_version": 3,
   "name": "VDM — capture de vidéos",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Détecte les vidéos des pages et les envoie au gestionnaire de téléchargements VDM.",
-  "permissions": ["webRequest", "contextMenus", "storage", "tabs", "cookies"],
-  "host_permissions": ["<all_urls>"],
-  "background": { "service_worker": "background.js", "type": "module" },
-  "action": { "default_popup": "popup.html", "default_title": "VDM" }
+  "permissions": [
+    "webRequest",
+    "contextMenus",
+    "storage",
+    "tabs",
+    "cookies"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ],
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "VDM"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "vdm@mitsinjou-maker.github.io",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
+  }
 }

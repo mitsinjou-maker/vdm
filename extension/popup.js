@@ -103,6 +103,25 @@ async function refreshJobs() {
   }
 }
 
+// Firefox traite l'accès aux sites comme facultatif : sans lui, rien n'est détecté.
+// (Chrome l'accorde à l'installation : le bandeau ne s'y affiche jamais.)
+const ALL_SITES = { origins: ["<all_urls>"] };
+async function checkPermission() {
+  try {
+    $("perm").hidden = await chrome.permissions.contains(ALL_SITES);
+  } catch {
+    $("perm").hidden = true;
+  }
+}
+$("grant").addEventListener("click", async () => {
+  try {
+    await chrome.permissions.request(ALL_SITES); // doit suivre directement le clic
+  } finally {
+    checkPermission();
+  }
+});
+checkPermission();
+
 // langue audio et sous-titres : on retient les derniers choix
 const remembered = { lang: "value", subs: "value", subsAuto: "checked", subsEmbed: "checked" };
 for (const [id, prop] of Object.entries(remembered)) {
