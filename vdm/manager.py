@@ -100,12 +100,14 @@ def prepare(url, kind, headers, quality):
 
 def build_downloader(kind, url, dest, *, quality="best", connections=8, headers=None,
                      limiter=None, stop_event=None, path=None, probe_result=None,
-                     playlist=False, prefix="", audio_lang="", subs="", subs_auto=False, subs_embed=False):
+                     playlist=False, prefix="", audio_lang="", subs="", subs_auto=False, subs_embed=False,
+                     title_hint=None):
     if kind == "ytdl":
         return ytdl.YtdlDownload(url, dest, quality=quality, connections=connections, headers=headers,
                                  rate_limit=limiter.rate if limiter else None, stop_event=stop_event,
                                  playlist=playlist, prefix=prefix, audio_lang=audio_lang,
-                                 subs=subs, subs_auto=subs_auto, subs_embed=subs_embed)
+                                 subs=subs, subs_auto=subs_auto, subs_embed=subs_embed,
+                                 title_hint=title_hint)
     return HttpDownload(url, dest, path=path, connections=connections, headers=headers,
                         limiter=limiter, stop_event=stop_event, probe_result=probe_result)
 
@@ -446,7 +448,7 @@ class Manager:
                                   limiter=self.limiter, stop_event=stop, path=job.path,
                                   probe_result=probe_result, playlist=job.playlist, prefix=job.prefix,
                                   audio_lang=job.audio_lang, subs=job.subs, subs_auto=job.subs_auto,
-                                  subs_embed=job.subs_embed)
+                                  subs_embed=job.subs_embed, title_hint=job.title)
             with self.lock:
                 self._downloaders[job.id] = dl
             path = dl.run()

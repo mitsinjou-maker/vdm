@@ -34,6 +34,33 @@ function clearTab(tabId) {
 
 chrome.action.setBadgeBackgroundColor({ color: "#1f7ae0" });
 
+// En-têtes que le navigateur envoie réellement pour chaque requête (Referer, Origin,
+// cookies) : un lecteur intégré dans une page envoie ceux de son propre cadre, pas ceux
+// de la page principale. VDM les réutilise tels quels pour télécharger comme le navigateur.
+const KEPT_HEADERS = ["referer", "origin", "cookie"];
+const sentHeaders = new Map(); // requestId -> { Referer, Origin, Cookie }
+
+chrome.webRequest.onSendHeaders.addListener(
+  (details) => {
+    if (details.tabId < 0) return;
+    const kept = {};
+    for (const h of details.requestHeaders || []) {
+      const name = h.name.toLowerCase();
+      if (KEPT_HEADERS.includes(name) && h.value) {
+        kept[name === "cookie" ? "Cookie" : name[0].toUpperCase() + name.slice(1)] = h.value;
+      }
+    }
+    sentHeaders.set(details.requestId, kept);
+    if (sentHeaders.size > 500) sentHeaders.delete(sentHeaders.keys().next().value); // borne mémoire
+  },
+  { urls: ["<all_urls>"], types: ["media", "xmlhttprequest", "other", "object"] },
+  ["requestHeaders", "extraHeaders"], // extraHeaders : nécessaire pour lire Referer et Cookie
+);
+
+for (const event of [chrome.webRequest.onCompleted, chrome.webRequest.onErrorOccurred]) {
+  event.addListener((d) => sentHeaders.delete(d.requestId), { urls: ["<all_urls>"] });
+}
+
 chrome.webRequest.onHeadersReceived.addListener(
   (details) => {
     if (details.tabId < 0 || details.statusCode >= 400) return;
@@ -55,10 +82,16 @@ chrome.webRequest.onHeadersReceived.addListener(
     const size = total ? Number(total[1]) : Number(headers["content-length"] || 0);
     if (!manifest && size && size < MIN_SIZE) return;
 
+    const sent = sentHeaders.get(details.requestId) || {};
+    // hôte du cadre qui a demandé la vidéo (lecteur intégré) ; affiché dans la popup
+    let via = "";
+    try { via = new URL(sent.Referer || details.initiator || "").hostname; } catch {}
+
     withTab(details.tabId, (items) => {
       if (items.some((i) => i.url === url)) return null;
-      const name = decodeURIComponent(new URL(url).pathname.split("/").pop() || host);
-      items.push({ url, type: type || "?", size, manifest, name, at: Date.now() });
+      let name = host;
+      try { name = decodeURIComponent(new URL(url).pathname.split("/").pop() || host); } catch {}
+      items.push({ url, type: type || "?", size, manifest, name, via, headers: sent, at: Date.now() });
       return items.slice(-MAX_ITEMS);
     });
   },
@@ -90,13 +123,25 @@ async function flash(tabId, ok) {
   }, 2500);
 }
 
+async function detectedItem(tabId, url) {
+  const key = `tab_${tabId}`;
+  const items = (await chrome.storage.session.get(key))[key] || [];
+  return items.find((i) => i.url === url);
+}
+
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const page = info.pageUrl || tab?.url;
+  // dans un lecteur intégré, l'adresse de référence est celle du cadre, pas de la page
+  const frame = info.frameUrl || page;
   let job;
   if (info.menuItemId === "vdm-media" && info.srcUrl && !info.srcUrl.startsWith("blob:")) {
-    job = { url: info.srcUrl, referer: page, direct: true };
+    const seen = await detectedItem(tab.id, info.srcUrl); // en-têtes réellement envoyés, si vus
+    job = { url: info.srcUrl, referer: frame, headers: seen?.headers, title: tab?.title, direct: true };
   } else if (info.menuItemId === "vdm-link") {
-    job = { url: info.linkUrl, referer: page, direct: MEDIA_EXT.test(info.linkUrl) };
+    job = { url: info.linkUrl, referer: frame, direct: MEDIA_EXT.test(info.linkUrl) };
+  } else if (info.frameUrl && info.frameUrl !== page) {
+    // clic dans un lecteur intégré : yt-dlp analyse la page du lecteur (PeerTube, Vimeo…)
+    job = { url: info.frameUrl, referer: page, title: tab?.title };
   } else {
     // page entière, ou lecteur en blob: (flux MSE) → yt-dlp analyse la page
     job = { url: page, title: tab?.title };

@@ -174,8 +174,11 @@ class _Logger:
 class YtdlDownload:
     def __init__(self, url, dest_dir, *, quality="best", connections=8, headers=None,
                  rate_limit=None, stop_event=None, playlist=False, prefix="", audio_lang="",
-                 subs="", subs_auto=False, subs_embed=False):
+                 subs="", subs_auto=False, subs_embed=False, title_hint=None):
         self.url = url
+        # titre de l'onglet transmis par l'extension : sert de nom aux flux anonymes
+        # (« index.m3u8 »…) pour lesquels yt-dlp ne trouve pas de vrai titre
+        self.title_hint = (title_hint or "").strip() or None
         self.dest_dir = Path(dest_dir)
         self.quality = quality if quality in QUALITIES else "best"
         self.connections = max(1, connections)
@@ -336,10 +339,13 @@ class YtdlDownload:
                 info = ydl.extract_info(self.url, download=False)
                 if info.get("_type") in ("playlist", "multi_video"):
                     raise PlaylistFound(info.get("title"), _entries(info))
-                self.title = info.get("title") or self.title
+                clean = ydl.sanitize_info(info, True)
+                if self.title_hint and info.get("extractor_key") == "Generic":
+                    clean["title"] = self.title_hint  # flux sans titre : nom de l'onglet
+                self.title = clean.get("title") or self.title
                 self._check_tracks(info, opts.get("writesubtitles"))
                 # même méthode que yt-dlp pour télécharger depuis des infos déjà extraites
-                info = ydl.process_ie_result(ydl.sanitize_info(info, True), download=True)
+                info = ydl.process_ie_result(clean, download=True)
                 downloads = info.get("requested_downloads") or [{}]
                 self.path = Path(downloads[0].get("filepath") or ydl.prepare_filename(info))
         except (Paused, PlaylistFound):

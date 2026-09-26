@@ -47,8 +47,17 @@ async function renderMedia() {
   for (const item of [...items].reverse()) {
     const btn = el("button", { className: "small", textContent: "↓", title: "Télécharger", disabled: !online });
     // un manifeste HLS/DASH passe par yt-dlp ; un fichier direct par le moteur multi-connexions
-    btn.addEventListener("click", () => send(btn, { url: item.url, referer: tab.url, direct: !item.manifest }));
-    const meta = [item.manifest ? "flux HLS/DASH" : item.type, humanSize(item.size)].filter(Boolean).join(" · ");
+    // en-têtes réellement envoyés par le navigateur (lecteur intégré compris) + titre de l'onglet
+    btn.addEventListener("click", () => send(btn, {
+      url: item.url, referer: tab.url, headers: item.headers, title: tab.title,
+      direct: !item.manifest, media: true,
+    }));
+    const pageHost = (() => { try { return new URL(tab.url).hostname; } catch { return ""; } })();
+    const meta = [
+      item.manifest ? "flux HLS/DASH" : item.type,
+      humanSize(item.size),
+      item.via && item.via !== pageHost ? `via ${item.via}` : "",
+    ].filter(Boolean).join(" · ");
     list.append(el("li", {},
       el("div", { className: "info" },
         el("div", { className: "name", textContent: item.name, title: item.url }),

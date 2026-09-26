@@ -21,13 +21,17 @@ async function cookieHeader(url) {
   }
 }
 
-// direct = lien vers le fichier média lui-même : on joint les cookies du site,
-// souvent nécessaires pour y accéder. Pour une page, yt-dlp se débrouille seul.
-export async function sendToVdm({ url, referer, title, quality, direct, playlist, queue, audio_lang,
-                                  subs, subs_auto, subs_embed }) {
+// direct = lien vers le fichier média lui-même ; media = média repéré sur le réseau
+// (fichier ou flux .m3u8/.mpd). Dans ces deux cas on joint les cookies du site, souvent
+// nécessaires (vidéos réservées aux abonnés d'une plateforme de cours…).
+// seen = en-têtes réellement envoyés par le navigateur pour ce média : prioritaires.
+// Pour une page, yt-dlp se débrouille seul.
+export async function sendToVdm({ url, referer, headers: seen, title, quality, direct, media, playlist,
+                                  queue, audio_lang, subs, subs_auto, subs_embed }) {
   const headers = { "User-Agent": navigator.userAgent };
   if (referer) headers.Referer = referer;
-  if (direct) {
+  Object.assign(headers, seen || {});
+  if ((direct || media) && !headers.Cookie) {
     const cookie = await cookieHeader(url);
     if (cookie) headers.Cookie = cookie;
   }
