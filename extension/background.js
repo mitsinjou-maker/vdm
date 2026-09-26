@@ -1,6 +1,6 @@
 // Détecte les médias qui transitent sur le réseau (comme le « bouton de téléchargement » d'IDM)
 // et ajoute des entrées au menu clic droit.
-import { sendToVdm } from "./common.js";
+import { api, captureSettings, sendToVdm } from "./common.js";
 
 const MEDIA_TYPE = /^(video\/|audio\/|application\/(x-mpegurl|vnd\.apple\.mpegurl|dash\+xml))/i;
 const MEDIA_EXT = /\.(mp4|m4v|webm|mkv|mov|avi|flv|mp3|m4a|ogg|opus|wav|flac|m3u8|mpd)(\?|$)/i;
@@ -143,7 +143,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     const seen = await detectedItem(tab.id, info.srcUrl); // en-têtes réellement envoyés, si vus
     job = { url: info.srcUrl, referer: frame, headers: seen?.headers, title: tab?.title, direct: true };
   } else if (info.menuItemId === "vdm-link") {
-    job = { url: info.linkUrl, referer: frame, direct: MEDIA_EXT.test(info.linkUrl) };
+    // tout lien (zip, pdf, exe, page…) : cookies joints pour les espaces réservés aux membres
+    job = { url: info.linkUrl, referer: frame, direct: MEDIA_EXT.test(info.linkUrl), link: true };
   } else if (info.frameUrl && info.frameUrl !== page) {
     // clic dans un lecteur intégré : yt-dlp analyse la page du lecteur (PeerTube, Vimeo…)
     job = { url: info.frameUrl, referer: page, title: tab?.title };
@@ -158,4 +159,52 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     console.warn("VDM :", e);
     flash(tab.id, false);
   }
+});
+
+// --- capture des téléchargements du navigateur (comme IDM) ------------------------
+// Un téléchargement lancé par Chrome/Firefox est confié à VDM s'il correspond aux règles
+// de la popup (extension de fichier ou taille minimale). VDM le reçoit D'ABORD, et celui
+// du navigateur n'est annulé qu'ensuite : si VDM est arrêté ou refuse, rien n'est perdu.
+
+function fileExt(name) {
+  const m = /\.([a-z0-9]{1,5})$/i.exec(name || "");
+  return m ? m[1].toLowerCase() : "";
+}
+
+async function shouldCapture(item) {
+  const s = await captureSettings();
+  if (!s.capture || item.incognito || item.byExtensionId) return null; // navigation privée : jamais
+  const url = item.finalUrl || item.url;
+  if (!/^https?:\/\//i.test(url)) return null;                          // blob:, data:, file:…
+  if ((item.mime || "").startsWith("text/html")) return null;           // page enregistrée
+  let name = (item.filename || "").split(/[\/]/).pop();
+  if (!name) {
+    try { name = decodeURIComponent(new URL(url).pathname.split("/").pop()); } catch { name = ""; }
+  }
+  const exts = s.captureExts.split(/[\s,;]+/).map((e) => e.replace(/^\./, "").toLowerCase()).filter(Boolean);
+  const size = item.totalBytes > 0 ? item.totalBytes : item.fileSize > 0 ? item.fileSize : 0;
+  const minBytes = Math.max(0, Number(s.captureMinMB) || 0) * 1024 * 1024;
+  const matches = exts.includes(fileExt(name)) || (minBytes > 0 && size >= minBytes);
+  return matches ? url : null;
+}
+
+chrome.downloads?.onCreated.addListener(async (item) => {
+  let url;
+  try {
+    url = await shouldCapture(item);
+    if (!url) return;
+    await api("/ping"); // VDM absent : exception, le navigateur continue seul
+    await sendToVdm({ url, referer: item.referrer || undefined, direct: true });
+  } catch (e) {
+    if (url) console.warn("VDM : téléchargement laissé au navigateur :", e);
+    return;
+  }
+  try {
+    await chrome.downloads.cancel(item.id);
+    await chrome.downloads.erase({ id: item.id }); // retire la ligne annulée de la liste du navigateur
+  } catch (e) {
+    console.warn("VDM : annulation impossible (déjà terminé ?)", e);
+  }
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true }).catch(() => []);
+  if (tab) flash(tab.id, true);
 });

@@ -21,17 +21,32 @@ async function cookieHeader(url) {
   }
 }
 
-// direct = lien vers le fichier média lui-même ; media = média repéré sur le réseau
-// (fichier ou flux .m3u8/.mpd). Dans ces deux cas on joint les cookies du site, souvent
-// nécessaires (vidéos réservées aux abonnés d'une plateforme de cours…).
-// seen = en-têtes réellement envoyés par le navigateur pour ce média : prioritaires.
-// Pour une page, yt-dlp se débrouille seul.
-export async function sendToVdm({ url, referer, headers: seen, title, quality, direct, media, playlist,
-                                  queue, audio_lang, subs, subs_auto, subs_embed }) {
+// Capture des téléchargements du navigateur (réglable dans la popup)
+export const CAPTURE_DEFAULTS = {
+  capture: true,       // confier à VDM les téléchargements du navigateur
+  captureMinMB: 5,     // … d'au moins cette taille
+  captureExts: "zip, rar, 7z, tar, gz, iso, img, exe, msi, apk, dmg, mp4, mkv, avi, mov, mp3, flac, pdf",
+};
+
+export async function captureSettings() {
+  try {
+    return { ...CAPTURE_DEFAULTS, ...(await chrome.storage.local.get(Object.keys(CAPTURE_DEFAULTS))) };
+  } catch {
+    return { ...CAPTURE_DEFAULTS };
+  }
+}
+
+// direct = lien vers le fichier lui-même ; media = média repéré sur le réseau
+// (fichier ou flux .m3u8/.mpd) ; link = lien choisi au clic droit (zip, pdf, page…).
+// Dans ces cas on joint les cookies du site, souvent nécessaires (espace membre,
+// plateforme de cours…). seen = en-têtes réellement envoyés par le navigateur : prioritaires.
+// Pour une page entière, yt-dlp se débrouille seul.
+export async function sendToVdm({ url, referer, headers: seen, title, quality, direct, media, link,
+                                  playlist, queue, audio_lang, subs, subs_auto, subs_embed }) {
   const headers = { "User-Agent": navigator.userAgent };
   if (referer) headers.Referer = referer;
   Object.assign(headers, seen || {});
-  if ((direct || media) && !headers.Cookie) {
+  if ((direct || media || link) && !headers.Cookie) {
     const cookie = await cookieHeader(url);
     if (cookie) headers.Cookie = cookie;
   }

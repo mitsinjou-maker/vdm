@@ -15,6 +15,7 @@ Un gestionnaire de téléchargements inspiré d'IDM, en ligne de commande **et**
 - **Sous-titres** : choix des langues (`fr,en`…), sous-titres automatiques (générés ou traduits par YouTube), en fichiers `.srt` ou intégrés à la vidéo. Si le site refuse les sous-titres, la vidéo est quand même téléchargée, avec un avertissement. Des sous-titres peuvent aussi être **ajoutés après coup** à une vidéo terminée (autre langue, automatiques), sans la retélécharger.
 - **Playlists entières** (YouTube et autres) : chaque vidéo devient un téléchargement séparé, numéroté et rangé dans un sous-dossier au nom de la playlist.
 - **Interface graphique** (`vdm gui`) : liste triable, filtres par catégorie, carte des segments, menu clic droit, icône dans la zone de notification.
+- **Capture des téléchargements du navigateur** (comme IDM) : les fichiers correspondant à vos règles (extensions `.zip`, `.iso`, `.exe`… ou taille minimale) sont confiés à VDM. Si VDM n'est pas lancé, le navigateur garde la main.
 - **Extension Chrome** : détecte les vidéos lues sur une page (compteur sur l'icône), menu clic droit, popup avec l'avancement.
 
 ## Installation
@@ -43,6 +44,15 @@ Les outils dont yt-dlp a besoin pour YouTube sont aussi installés automatiqueme
 1. Ouvrir `chrome://extensions` et activer le **Mode développeur**.
 2. Cliquer sur **Charger l'extension non empaquetée** et choisir le dossier `vdm/extension`.
 3. Lancer `vdm gui` (ou `vdm daemon`) : l'extension lui envoie les téléchargements.
+
+### Capture des téléchargements du navigateur
+
+Activée par défaut dans l'extension : quand Chrome ou Firefox commence un téléchargement de **5 Mo ou plus**, ou d'un type listé (`zip, rar, 7z, iso, exe, msi, mp4, pdf…`), il est confié à VDM (multi-connexions, reprise, catégories) et retiré du navigateur. Réglages dans la popup, section **Téléchargements du navigateur**.
+
+- VDM reçoit le fichier **avant** que le navigateur n'abandonne le sien : si VDM est arrêté ou refuse, le téléchargement continue normalement dans le navigateur.
+- Jamais en navigation privée, ni pour les fichiers générés par la page (`blob:`) ou les pages enregistrées.
+- Les cookies du site sont transmis (fichiers réservés aux membres).
+- Limite : un lien à usage unique (valable pour un seul téléchargement) peut être refusé quand VDM le redemande ; dans ce cas, désactivez la capture le temps de ce fichier.
 
 ### Extension Firefox (140 ou plus récent)
 

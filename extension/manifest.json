@@ -1,14 +1,15 @@
 {
   "manifest_version": 3,
   "name": "VDM — capture de vidéos",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Détecte les vidéos des pages et les envoie au gestionnaire de téléchargements VDM.",
   "permissions": [
     "webRequest",
     "contextMenus",
     "storage",
     "tabs",
-    "cookies"
+    "cookies",
+    "downloads"
   ],
   "host_permissions": [
     "<all_urls>"

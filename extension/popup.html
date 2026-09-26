@@ -34,6 +34,11 @@
           background:#fff4e5; color:#7a4a00; border-bottom:1px solid var(--line); }
   .warn[hidden] { display:none; }
   @media (prefers-color-scheme: dark) { .warn { background:#3a2c14; color:#ffd99a; } }
+  .check { display:flex; gap:6px; align-items:center; cursor:pointer; }
+  .capture-opts { display:flex; flex-direction:column; gap:6px; margin-top:8px; font-size:12px; }
+  .capture-opts input { font:inherit; padding:3px 5px; border-radius:5px; border:1px solid var(--line);
+                        background:var(--bg); color:var(--fg); box-sizing:border-box; }
+  .capture-opts.off { opacity:.5; }
   .empty, .hint { color:var(--muted); font-size:12px; }
   code { font-size:12px; }
 </style>
@@ -98,6 +103,17 @@
   <section>
     <h2>Téléchargements</h2>
     <ul id="jobs"></ul>
+  </section>
+
+  <section>
+    <h2>Téléchargements du navigateur</h2>
+    <label class="check"><input type="checkbox" id="capture"> Les confier à VDM (si VDM est lancé)</label>
+    <div class="capture-opts">
+      <label>Fichiers de <input type="number" id="captureMinMB" min="0" step="1" style="width:4em"> Mo ou plus
+        <span class="hint">(0 = taille ignorée)</span></label>
+      <label>ou ces extensions :
+        <input type="text" id="captureExts" style="width:100%" spellcheck="false"></label>
+    </div>
   </section>
 
   <script type="module" src="popup.js"></script>

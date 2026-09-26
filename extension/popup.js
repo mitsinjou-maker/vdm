@@ -1,4 +1,4 @@
-import { api, humanSize, sendToVdm } from "./common.js";
+import { api, captureSettings, humanSize, sendToVdm } from "./common.js";
 
 const $ = (id) => document.getElementById(id);
 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -121,6 +121,27 @@ $("grant").addEventListener("click", async () => {
   }
 });
 checkPermission();
+
+// réglages de capture des téléchargements du navigateur (partagés avec la tâche de fond)
+async function initCapture() {
+  const s = await captureSettings();
+  $("capture").checked = s.capture;
+  $("captureMinMB").value = s.captureMinMB;
+  $("captureExts").value = s.captureExts;
+  const refresh = () => $("capture").closest("section").querySelector(".capture-opts")
+    .classList.toggle("off", !$("capture").checked);
+  refresh();
+  const save = () => {
+    refresh();
+    chrome.storage.local.set({
+      capture: $("capture").checked,
+      captureMinMB: Math.max(0, Number($("captureMinMB").value) || 0),
+      captureExts: $("captureExts").value,
+    });
+  };
+  for (const id of ["capture", "captureMinMB", "captureExts"]) $(id).addEventListener("change", save);
+}
+initCapture();
 
 // langue audio et sous-titres : on retient les derniers choix
 const remembered = { lang: "value", subs: "value", subsAuto: "checked", subsEmbed: "checked" };
